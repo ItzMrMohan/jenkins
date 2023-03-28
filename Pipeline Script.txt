@@ -1,0 +1,67 @@
+<----------------------------------------Pipeline Script for Java to SonarQube-------------------------->
+
+pipeline{
+    agent any
+    tools {
+        maven 'maven' 
+    }
+    stages{
+        stage('Do the Job'){
+            parallel{
+                stage('Run Sonarqube'){
+                    steps{
+                        bat '''cmd 
+                        "C:\\Program Files\\sonarqube\\sonarqube-9.6.0.59041\\bin\\windows-x86-64\\StartSonar.bat"'''
+                        
+                    }
+                }
+                stage('Maven'){
+                    steps {
+                        sleep time: 1.3, unit: 'MINUTES'
+                        powershell '''New-Alias -Name gitBash -Value "$Env:ProgramFiles\\\\Git\\\\bin\\\\bash.exe"
+                                    gitBash -c " cd 'C:\\Users\\mohan\\OneDrive\\Documents\\NetBeansProjects\\mavenproject1'
+                                                 mvn clean verify sonar:sonar \
+                                                  -Dsonar.projectKey=Login \
+                                                  -Dsonar.host.url=http://localhost:9000 \
+                                                  -Dsonar.login=sqp_10b944f615dcda3e20336198573fb87ea2607d4f"'''
+                    }
+
+                }
+                stage('stop Sonarqube'){
+                    steps{
+                        sleep time: 5, unit: 'MINUTES'
+                        powershell '''$port = ((netstat -ano | findstr "0.0.0.0:9000").Split())[38]
+                        taskkill /F /PID $port'''
+                    }
+                }
+                stage('new'){
+                    steps{
+                        powershell 'whoami'
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+===========================================================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+e
